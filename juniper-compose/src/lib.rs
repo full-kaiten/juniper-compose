@@ -31,7 +31,7 @@
 //!     async fn tasks(ctx: &Context) -> Vec<Task> {
 //!         // ...
 //!     }
-//!     
+//!
 //!     // ...many more
 //! }
 //! ```
@@ -133,11 +133,11 @@ where
 
 #[doc(hidden)]
 #[allow(clippy::must_use_candidate)]
-pub fn type_to_owned<'a>(ty: &Type<'a>) -> Type<'static> {
+pub fn type_to_owned(ty: &Type) -> Type<'static> {
     match ty {
         Type::Named(name) => Type::Named(Cow::Owned(name.to_string())),
         Type::NonNullNamed(name) => Type::NonNullNamed(Cow::Owned(name.to_string())),
-        Type::List(inner) => Type::List(Box::new(type_to_owned(inner))),
-        Type::NonNullList(inner) => Type::NonNullList(Box::new(type_to_owned(inner))),
+        Type::List(inner, size) => Type::List(Box::new(type_to_owned(inner)), *size),
+        Type::NonNullList(inner, size) => Type::NonNullList(Box::new(type_to_owned(inner)), *size),
     }
 }
