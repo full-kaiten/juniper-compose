@@ -10,7 +10,7 @@
 //! You are building a GraphQL server using Juniper. At some point you realize that you have gigantic
 //! Query and Mutation types:
 //!
-//! ```
+//! ```ignore
 //! #[derive(Default)]
 //! struct Query;
 //!
@@ -42,7 +42,7 @@
 //!
 //! ## Usage
 //!
-//! ```
+//! ```ignore
 //! #[derive(Default)]
 //! struct UserQueries;
 //!
@@ -78,27 +78,26 @@
 //!
 //! Custom contexts are supported:
 //!
-//! ```
+//! ```ignore
 //! composite_object!(Query<Context = MyCustomContext>(UserQueries, TaskQueries));
 //! ```
 //!
 //! Visibility specifier for generated type is supported:
 //!
-//! ```
+//! ```ignore
 //! composite_object!(pub(crate) Query<Context = MyCustomContext>(UserQueries, TaskQueries));
 //! ```
 //!
 //! Custom scalars are currently not supported, but will be added if requested.
 
 use juniper::{GraphQLTypeAsync, Type};
-use std::borrow::Cow;
 
 /// Implements [ComposableObject](ComposableObject) for a GraphQL object type.
 /// **Important**: must be applied before the `juniper::graphql_object` macro.
 ///
 /// ## Example
 ///
-/// ```
+/// ```ignore
 /// #[composable_object]
 /// #[graphql_object]
 /// impl UserQueries {
@@ -113,7 +112,7 @@ pub use juniper_compose_macros::composable_object;
 ///
 /// ## Examples
 ///
-/// ```
+/// ```ignore
 /// composite_object!(Query(UserQueries, TaskQueries));
 /// composite_object!(Mutation<Context = MyContextType>(UserMutations, TaskMutations));
 /// composite_object!(pub Query(UserQueries, TaskQueries));
@@ -133,11 +132,6 @@ where
 
 #[doc(hidden)]
 #[allow(clippy::must_use_candidate)]
-pub fn type_to_owned(ty: &Type) -> Type<'static> {
-    match ty {
-        Type::Named(name) => Type::Named(Cow::Owned(name.to_string())),
-        Type::NonNullNamed(name) => Type::NonNullNamed(Cow::Owned(name.to_string())),
-        Type::List(inner, size) => Type::List(Box::new(type_to_owned(inner)), *size),
-        Type::NonNullList(inner, size) => Type::NonNullList(Box::new(type_to_owned(inner)), *size),
-    }
+pub fn type_to_owned(ty: &Type) -> Type {
+    ty.clone()
 }

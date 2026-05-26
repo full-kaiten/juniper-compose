@@ -154,17 +154,14 @@ fn expand_impl_graphql_type<'a>(
     let composables = composables.into_iter();
     quote! {
         impl ::juniper::GraphQLType for #name {
-            fn name(info: &Self::TypeInfo) -> ::std::option::Option<&str> {
-                ::std::option::Option::Some(#name_lit)
+            fn name(info: &Self::TypeInfo) -> ::std::option::Option<::juniper::ArcStr> {
+                ::std::option::Option::Some(::juniper::arcstr::literal!(#name_lit))
             }
 
-            fn meta<'r>(
+            fn meta(
                 info: &Self::TypeInfo,
-                registry: &mut ::juniper::executor::Registry<'r, ::juniper::DefaultScalarValue>
-            ) -> ::juniper::meta::MetaType<'r, ::juniper::DefaultScalarValue>
-            where
-                ::juniper::DefaultScalarValue: 'r
-            {
+                registry: &mut ::juniper::executor::Registry<::juniper::DefaultScalarValue>
+            ) -> ::juniper::meta::MetaType<::juniper::DefaultScalarValue> {
                 let mut fields = ::std::vec![];
                 let mut seen_field_names = ::std::collections::HashSet::<&str>::new();
 
@@ -181,7 +178,7 @@ fn expand_impl_graphql_type<'a>(
                             .unwrap_or_else(|| {
                                 ::std::panic!(
                                     "Incorrect implementation of ComposableObject on type {}: unknown field {}",
-                                    <#composables as ::juniper::GraphQLType>::name(&()).unwrap_or("<anonymous>"), field_name
+                                    <#composables as ::juniper::GraphQLType>::name(&()).unwrap_or_else(|| ::juniper::arcstr::literal!("<anonymous>")), field_name
                                 )
                             });
 
@@ -223,7 +220,7 @@ fn expand_impl_graphql_value<'a>(
             type Context = #context;
             type TypeInfo = ();
 
-            fn type_name<'i>(&self, info: &'i Self::TypeInfo) -> Option<&'i str> {
+            fn type_name(&self, info: &Self::TypeInfo) -> ::std::option::Option<::juniper::ArcStr> {
                 <Self as ::juniper::GraphQLType>::name(info)
             }
 
